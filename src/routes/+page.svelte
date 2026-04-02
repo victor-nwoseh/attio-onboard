@@ -1,10 +1,11 @@
 <script lang="ts">
   import QuestionFlow from '$lib/components/questionnaire/QuestionFlow.svelte';
-  import type { AttioConfiguration } from '$lib/utils/types';
+  import type { AttioConfiguration, UserAnswers } from '$lib/utils/types';
 
   let appView: 'intro' | 'questionnaire' | 'loading' | 'results' | 'error' = $state('intro');
   let configuration: AttioConfiguration | null = $state(null);
   let errorMessage = $state('');
+  let lastAnswers: Partial<UserAnswers> | null = $state(null);
 
   function startQuestionnaire() {
     appView = 'questionnaire';
@@ -15,8 +16,9 @@
     appView = 'results';
   }
 
-  function handleLoading(loading: boolean) {
+  function handleLoading(loading: boolean, answers?: Partial<UserAnswers>) {
     if (loading) {
+      if (answers) lastAnswers = answers;
       appView = 'loading';
     }
   }
@@ -26,13 +28,34 @@
     appView = 'error';
   }
 
-  function retry() {
-    appView = 'questionnaire';
+  async function retry() {
+    if (!lastAnswers) {
+      appView = 'questionnaire';
+      return;
+    }
+    appView = 'loading';
+    try {
+      const response = await fetch('/api/generate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ answers: lastAnswers })
+      });
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.error || 'Failed to generate configuration');
+      }
+      const config: AttioConfiguration = await response.json();
+      handleComplete(config);
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Something went wrong';
+      handleError(message);
+    }
   }
 
   function startOver() {
     configuration = null;
     errorMessage = '';
+    lastAnswers = null;
     appView = 'intro';
   }
 </script>

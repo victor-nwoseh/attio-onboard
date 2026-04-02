@@ -9,7 +9,7 @@
 
   interface Props {
     onComplete: (config: AttioConfiguration) => void;
-    onLoading: (loading: boolean) => void;
+    onLoading: (loading: boolean, answers?: Partial<UserAnswers>) => void;
     onError: (error: string) => void;
   }
 
@@ -112,7 +112,7 @@
   }
 
   async function submitAnswers() {
-    onLoading(true);
+    onLoading(true, { ...answers });
     try {
       const response = await fetch('/api/generate', {
         method: 'POST',
