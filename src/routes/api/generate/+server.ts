@@ -56,7 +56,19 @@ export const POST: RequestHandler = async ({ request }) => {
 
     return json(configuration);
   } catch (err) {
+    // Handle Anthropic SDK errors with user-friendly messages
+    if (err instanceof Anthropic.APIError) {
+      if (err.status === 529 || err.status === 429) {
+        return json(
+          { error: 'The AI service is temporarily overloaded. Please try again in a moment.' },
+          { status: 503 }
+        );
+      }
+      if (err.status === 401) {
+        return json({ error: 'API authentication failed. Please check the configuration.' }, { status: 500 });
+      }
+    }
     const message = err instanceof Error ? err.message : 'Unknown error';
-    return json({ error: `AI generation failed: ${message}` }, { status: 500 });
+    return json({ error: `Something went wrong generating your configuration. Please try again.` }, { status: 500 });
   }
 };
