@@ -35,7 +35,8 @@
     </div>
     <button
       type="button"
-      class="text-sm text-indigo-600 hover:text-indigo-800 transition-colors"
+      class="text-sm text-indigo-600 hover:text-indigo-800 transition-colors
+        focus:outline-none focus:underline focus:text-indigo-800"
       onclick={onStartOver}
     >
       Start over
@@ -53,7 +54,8 @@
   <div class="mt-8 border-t border-gray-200 pt-8 text-center">
     <button
       type="button"
-      class="text-sm text-indigo-600 hover:text-indigo-800 transition-colors"
+      class="text-sm text-indigo-600 hover:text-indigo-800 transition-colors
+        focus:outline-none focus:underline focus:text-indigo-800"
       onclick={onStartOver}
     >
       Start over

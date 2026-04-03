@@ -17,6 +17,7 @@
       ? 'border-indigo-600 bg-indigo-50'
       : 'border-gray-200 bg-white hover:border-gray-300 hover:bg-gray-50'}
     focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+  aria-pressed={multiSelect ? selected : undefined}
   {onclick}
 >
   <div class="flex items-start gap-3">

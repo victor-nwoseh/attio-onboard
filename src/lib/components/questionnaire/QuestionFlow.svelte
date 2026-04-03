@@ -143,7 +143,8 @@
     {#if currentIndex > 0}
       <button
         type="button"
-        class="mb-4 flex items-center gap-1 text-sm text-gray-500 hover:text-gray-700 transition-colors"
+        class="mb-4 flex items-center gap-1 text-sm text-gray-500 hover:text-gray-700 transition-colors
+          focus:outline-none focus:text-gray-700 focus:underline"
         onclick={handleBack}
       >
         <svg class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
@@ -155,7 +156,7 @@
 
     {#if currentQuestion}
       <TransitionWrapper key={currentQuestion.id}>
-        <h2 class="text-xl font-semibold text-gray-900">
+        <h2 id="question-label" class="text-xl font-semibold text-gray-900">
           {getQuestionText(currentQuestion)}
         </h2>
 
@@ -196,6 +197,7 @@
               value={(answers[currentQuestion.answerKey] as string) || ''}
               placeholder={currentQuestion.placeholder}
               onchange={handleTextChange}
+              labelledBy="question-label"
             />
 
             <div class="mt-6">

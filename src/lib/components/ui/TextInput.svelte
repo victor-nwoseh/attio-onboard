@@ -3,9 +3,10 @@
     value: string;
     placeholder?: string;
     onchange: (value: string) => void;
+    labelledBy?: string;
   }
 
-  let { value, placeholder = '', onchange }: Props = $props();
+  let { value, placeholder = '', onchange, labelledBy }: Props = $props();
 </script>
 
 <textarea
@@ -16,5 +17,6 @@
   rows="4"
   {placeholder}
   {value}
+  aria-labelledby={labelledBy}
   oninput={(e) => onchange(e.currentTarget.value)}
 ></textarea>
