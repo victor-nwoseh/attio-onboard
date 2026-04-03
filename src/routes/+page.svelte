@@ -1,6 +1,7 @@
 <script lang="ts">
   import QuestionFlow from '$lib/components/questionnaire/QuestionFlow.svelte';
-  import type { AttioConfiguration, UserAnswers } from '$lib/utils/types';
+  import ResultsPage from '$lib/components/results/ResultsPage.svelte';
+  import type { AttioConfiguration, BusinessModel, UserAnswers } from '$lib/utils/types';
 
   let appView: 'intro' | 'questionnaire' | 'loading' | 'results' | 'error' = $state('intro');
   let configuration: AttioConfiguration | null = $state(null);
@@ -98,18 +99,11 @@
 
   {:else if appView === 'results' && configuration}
     <div class="w-full py-12">
-      <div class="mx-auto max-w-3xl px-4 text-center">
-        <h2 class="text-2xl font-bold text-gray-900">Your configuration is ready</h2>
-        <p class="mt-2 text-gray-600">{configuration.summary}</p>
-        <p class="mt-6 text-sm text-gray-400">Results display coming in Phase 6</p>
-        <button
-          type="button"
-          class="mt-8 text-sm text-indigo-600 hover:text-indigo-800 transition-colors"
-          onclick={startOver}
-        >
-          Start over
-        </button>
-      </div>
+      <ResultsPage
+        {configuration}
+        businessModel={lastAnswers?.business_model as BusinessModel | undefined}
+        onStartOver={startOver}
+      />
     </div>
 
   {:else if appView === 'error'}
