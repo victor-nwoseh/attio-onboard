@@ -33,7 +33,12 @@ export async function generateConfiguration(answers: Partial<UserAnswers>): Prom
     fullText = fullText.replace(/^```(?:json)?\s*\n?/, '').replace(/\n?```\s*$/, '');
   }
 
-  const parsed = JSON.parse(fullText);
+  let parsed;
+  try {
+    parsed = JSON.parse(fullText);
+  } catch {
+    throw new Error('The AI response was incomplete. Please try again.');
+  }
 
   // Check if the response is an error object from the stream
   if (parsed.error) {
