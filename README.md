@@ -1,42 +1,57 @@
-# sv
+# Attio Onboard
 
-Everything you need to build a Svelte project, powered by [`sv`](https://github.com/sveltejs/cli).
+An interactive onboarding assistant that generates tailored Attio CRM configurations based on your business model, team structure, and go-to-market motion.
 
-## Creating a project
+[Live Demo](https://attio-onboard.vercel.app/)
 
-If you're seeing this, you've probably already done this step. Congrats!
+## The Problem
 
-```sh
-# create a new project
-npx sv create my-app
-```
+Attio is a powerful, flexible CRM. But flexibility comes with a cost: new users face a blank canvas and have to figure out what to build.
 
-To recreate this project with the same configuration:
+For a platform that prides itself on being intuitive, the most consistent complaint across user reviews is that getting started is hard. Users report spending hours on trial and error, struggling with workflow setup, and finding the help center too generic to guide them through initial configuration.
 
-```sh
-# recreate this project
-npx sv@0.13.1 create --template minimal --types ts --install npm attio-onboard
-```
+The paradox: the more flexible the tool, the harder it is to know where to start.
 
-## Developing
+## Evidence
 
-Once you've created a project and installed dependencies with `npm install` (or `pnpm install` or `yarn`), start a development server:
+- "Setting up workflows can be tricky the first time you do it. There is lots of information available to help, but it still just doesn't feel simple." (G2 review)
+- "It took us some time to completely integrate with each team member since all of them had to be competent in the right application of Attio tools." (G2 review)
+- "Building complex automations requires some learning curve. We spent about 2 hours understanding conditional triggers." (Hackceleration)
+- Competitor reviews consistently cite onboarding complexity as a reason to consider alternatives
 
-```sh
-npm run dev
+## The Solution
 
-# or start the server and open the app in a new browser tab
-npm run dev -- --open
-```
+Attio Onboard is a guided setup assistant that asks questions about your business and generates a recommended Attio workspace configuration. Instead of dropping users into a blank CRM, it produces a tailored setup guide with:
 
-## Building
+- **Which objects to create** and how to structure them (standard and custom)
+- **Pipeline stages** designed for your specific workflow
+- **Automations** that match your go-to-market motion
+- **Lists and views** organized for how your team works
+- **Integrations** prioritized for your current tool stack
 
-To create a production version of your app:
+Every recommendation includes reasoning ("We recommend this because...") and actionable setup steps ("Go to Workspace Settings > Objects > ...").
 
-```sh
-npm run build
-```
+## Who It Supports
 
-You can preview the production build with `npm run preview`.
+The tool generates distinct configurations for three business models that represent Attio's core customer base:
 
-> To deploy your app, you may need to install an [adapter](https://svelte.dev/docs/kit/adapters) for your target environment.
+- **SaaS / Software companies**: Sales pipelines, subscription tracking, PLG product usage monitoring
+- **VC / PE firms**: Deal flow pipelines, portfolio management, LP tracking, fund operations
+- **Agencies / Services firms**: Client management, project tracking, new business pipelines, retainer monitoring
+
+## How It Works
+
+1. Answer 7-8 questions about your business model, team, and current setup
+2. The tool generates a tailored Attio configuration using AI
+3. Review your personalized setup guide with recommendations, reasoning, and step-by-step instructions
+
+## Built With
+
+- SvelteKit
+- Tailwind CSS
+- Claude API (Anthropic)
+- Deployed on Vercel
+
+## About
+
+Built by Victor Nwoseh as a proof-of-concept addressing the onboarding gap in Attio's user experience. This is not an official Attio product.
