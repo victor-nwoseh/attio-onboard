@@ -1,6 +1,7 @@
 <script lang="ts">
   import QuestionFlow from '$lib/components/questionnaire/QuestionFlow.svelte';
   import ResultsPage from '$lib/components/results/ResultsPage.svelte';
+  import { generateConfiguration } from '$lib/utils/generate';
   import type { AttioConfiguration, BusinessModel, UserAnswers } from '$lib/utils/types';
 
   let appView: 'intro' | 'questionnaire' | 'loading' | 'results' | 'error' = $state('intro');
@@ -36,16 +37,7 @@
     }
     appView = 'loading';
     try {
-      const response = await fetch('/api/generate', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ answers: lastAnswers })
-      });
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.error || 'Failed to generate configuration');
-      }
-      const config: AttioConfiguration = await response.json();
+      const config = await generateConfiguration(lastAnswers);
       handleComplete(config);
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Something went wrong';

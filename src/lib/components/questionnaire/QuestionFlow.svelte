@@ -1,5 +1,6 @@
 <script lang="ts">
   import { questions } from '$lib/data/questions';
+  import { generateConfiguration } from '$lib/utils/generate';
   import type { Question, QuestionOption, UserAnswers, AttioConfiguration } from '$lib/utils/types';
   import OptionCard from '$lib/components/ui/OptionCard.svelte';
   import TextInput from '$lib/components/ui/TextInput.svelte';
@@ -114,18 +115,7 @@
   async function submitAnswers() {
     onLoading(true, { ...answers });
     try {
-      const response = await fetch('/api/generate', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ answers })
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.error || 'Failed to generate configuration');
-      }
-
-      const config: AttioConfiguration = await response.json();
+      const config = await generateConfiguration(answers);
       onComplete(config);
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Something went wrong';

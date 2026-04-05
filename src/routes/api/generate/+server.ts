@@ -5,7 +5,7 @@ import { json } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
 import type { UserAnswers } from '$lib/utils/types';
 
-export const config = { maxDuration: 60 };
+export const config = { maxDuration: 300 };
 
 export const POST: RequestHandler = async ({ request }) => {
   let answers: UserAnswers;
@@ -26,7 +26,7 @@ export const POST: RequestHandler = async ({ request }) => {
       apiKey: ANTHROPIC_API_KEY
     });
 
-    const response = await client.messages.create({
+    const stream = client.messages.stream({
       model: 'claude-sonnet-4-6',
       max_tokens: 8192,
       system: buildSystemPrompt(),
@@ -35,28 +35,53 @@ export const POST: RequestHandler = async ({ request }) => {
       ]
     });
 
-    const textBlock = response.content.find(block => block.type === 'text');
-    if (!textBlock || textBlock.type !== 'text') {
-      return json({ error: 'No text response from AI' }, { status: 500 });
-    }
+    const encoder = new TextEncoder();
 
-    let rawText = textBlock.text.trim();
+    const readable = new ReadableStream({
+      async start(controller) {
+        try {
+          for await (const event of stream) {
+            if (
+              event.type === 'content_block_delta' &&
+              event.delta.type === 'text_delta'
+            ) {
+              controller.enqueue(encoder.encode(event.delta.text));
+            }
+          }
+          controller.close();
+        } catch (err) {
+          if (err instanceof Anthropic.APIError) {
+            if (err.status === 529 || err.status === 429) {
+              controller.enqueue(
+                encoder.encode(JSON.stringify({ error: 'The AI service is temporarily overloaded. Please try again in a moment.' }))
+              );
+            } else if (err.status === 401) {
+              controller.enqueue(
+                encoder.encode(JSON.stringify({ error: 'API authentication failed. Please check the configuration.' }))
+              );
+            } else {
+              controller.enqueue(
+                encoder.encode(JSON.stringify({ error: 'Something went wrong generating your configuration. Please try again.' }))
+              );
+            }
+          } else {
+            controller.enqueue(
+              encoder.encode(JSON.stringify({ error: 'Something went wrong generating your configuration. Please try again.' }))
+            );
+          }
+          controller.close();
+        }
+      }
+    });
 
-    // Strip markdown code fences if the LLM wraps the JSON despite instructions
-    if (rawText.startsWith('```')) {
-      rawText = rawText.replace(/^```(?:json)?\s*\n?/, '').replace(/\n?```\s*$/, '');
-    }
-
-    let configuration;
-    try {
-      configuration = JSON.parse(rawText);
-    } catch {
-      return json({ error: 'Failed to parse AI response as JSON' }, { status: 500 });
-    }
-
-    return json(configuration);
+    return new Response(readable, {
+      headers: {
+        'Content-Type': 'text/plain; charset=utf-8',
+        'Cache-Control': 'no-cache',
+        'Transfer-Encoding': 'chunked'
+      }
+    });
   } catch (err) {
-    // Handle Anthropic SDK errors with user-friendly messages
     if (err instanceof Anthropic.APIError) {
       if (err.status === 529 || err.status === 429) {
         return json(
@@ -68,7 +93,6 @@ export const POST: RequestHandler = async ({ request }) => {
         return json({ error: 'API authentication failed. Please check the configuration.' }, { status: 500 });
       }
     }
-    const message = err instanceof Error ? err.message : 'Unknown error';
-    return json({ error: `Something went wrong generating your configuration. Please try again.` }, { status: 500 });
+    return json({ error: 'Something went wrong generating your configuration. Please try again.' }, { status: 500 });
   }
 };
